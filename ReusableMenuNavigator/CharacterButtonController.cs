@@ -3,10 +3,10 @@ using System.Collections;
 
 public class CharacterButtonController : MonoBehaviour {
     //Button Controller
+    //Attach this script to anything in your menu that you would like to be a button
     //Each differnet menu should have its own buttons script
-
-    public string dogName;
-    public int number;
+    
+    public int number; //Number of where the button should be in the grid
 
     public bool selected = false;
 
