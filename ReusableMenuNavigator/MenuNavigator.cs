@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CharacterMenuNavigator : MonoBehaviour {
+public class MenuNavigator : MonoBehaviour {
     //script that allows users to navigate menus
+    //Attach this script to the object that you would like to use to navigate through a menu
 
     public int selector; //int to determine where user is in the menu
 
@@ -12,8 +13,6 @@ public class CharacterMenuNavigator : MonoBehaviour {
     public string dpadHorizontal;
     public string enterButton;
     public string backButton;
-
-    public string dogSelected;
 
     public bool canMove;
     public bool onAxis = false;
