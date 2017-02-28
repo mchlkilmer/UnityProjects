@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CharacterSelectController : MonoBehaviour {
+public class MenuController : MonoBehaviour {
     //Menu controller
+    //Attach this script to an empty object that can be used to controll different menus
     //Each menu needs to be a square grid with buttons in each grid location
 
     public int playersConfirmed = 0;
-    public int playersPlaying;
+    public int playersPlaying = 1; //Starts at one and goes up for more players 
     public int rows;
     public int columns;
     private int max;
@@ -14,10 +15,8 @@ public class CharacterSelectController : MonoBehaviour {
     int currentRow;
     int currentColumn;
 
-    public GameObject P1, P2, P3, P4;
-    public GameObject screen;
-
-    public MainMenuController controller;
+    public GameObject P1, P2, P3, P4; //Gameobjects that have a menu navigator script attached to them for user to move around
+    public GameObject screen; //The UI Canvas that can be turned on and off
 
     CharacterButtonController[] characterButtons;
 
@@ -25,7 +24,6 @@ public class CharacterSelectController : MonoBehaviour {
         playersPlaying = 1;
         characterButtons = GameObject.FindObjectsOfType(typeof(CharacterButtonController)) as CharacterButtonController[]; //Find all buttons for this type of menu
         max = rows * columns;
-        controller = GameObject.Find("Main Menu Controller").GetComponent<MainMenuController>(); // this script should be attached to this game object to turn off various screens, ex. main menu, options, ect.
         for (int i = 0; i < max; i++)
         {
             characterButtons[i].setSelected(); //make sure nothing is selected when game starts   
@@ -43,16 +41,16 @@ public class CharacterSelectController : MonoBehaviour {
         }
     }
 
-    int FindRow(GameObject player)
+    int FindRow(GameObject player) //Find the row that the user is currently on
     {
-        int mySelector = player.GetComponent<CharacterMenuNavigator>().selector;
+        int mySelector = player.GetComponent<MenuNavigator>().selector;
         currentRow = ((mySelector - 1) / (columns)) + 1;
         return currentRow; 
     }
 
-    int FindColumn(GameObject player)
+    int FindColumn(GameObject player) //Find the column that the user is currently on
     {
-        int mySelector = player.GetComponent<CharacterMenuNavigator>().selector;
+        int mySelector = player.GetComponent<MenuNavigator>().selector;
         currentColumn = mySelector % (max / rows);
         if(currentColumn == 0)
         {
@@ -61,55 +59,20 @@ public class CharacterSelectController : MonoBehaviour {
         return currentColumn;
     }
 
-    public void SetPostion(GameObject player)
+    public void SetPostion(GameObject player) //Set user position to the button they are on
     {
         for(int i = 0; i < max; i++)
         {
-            if(player.GetComponent<CharacterMenuNavigator>().selector == characterButtons[i].number)
+            if(player.GetComponent<MenuNavigator>().selector == characterButtons[i].number)
             {
                 player.transform.position = characterButtons[i].transform.position;
             }
         }
     }
 
-    void SelectDog(GameObject player)
-    {
-        for (int i = 0; i < max; i++)
-        {
-            if (player.GetComponent<CharacterMenuNavigator>().selector == characterButtons[i].number)
-            {
-                if (characterButtons[i].selected == false)
-                {
-                    player.GetComponent<CharacterMenuNavigator>().dogSelected = characterButtons[i].dogName;
-                    player.GetComponent<CharacterMenuNavigator>().canMove = false;
-                    characterButtons[i].selected = true;
-                    characterButtons[i].setSelected();
-                    playersConfirmed += 1;
-                }
-                else
-                   break;
-            }
-        }
-    }
-    
-
-    void DeselectDog(GameObject player)
-    {
-        for (int i = 0; i < max; i++)
-        {
-            if (player.GetComponent<CharacterMenuNavigator>().selector == characterButtons[i].number)
-            {
-                player.GetComponent<CharacterMenuNavigator>().dogSelected = "";
-                player.GetComponent<CharacterMenuNavigator>().canMove = true;
-                characterButtons[i].selected =false;
-                characterButtons[i].setSelected();
-            }
-        }
-    }
-
     bool ResetPosition(GameObject player) //Reset Axis Input for Xbox controller
     {
-        CharacterMenuNavigator navigator = player.GetComponent<CharacterMenuNavigator>();
+        MenuNavigator navigator = player.GetComponent<MenuNavigator>();
 
         string hAxis = navigator.horizontalAxis;
         string vAxis = navigator.verticalAxis;
@@ -125,9 +88,9 @@ public class CharacterSelectController : MonoBehaviour {
             return false;
     }
 
-    void ChangePosition(GameObject player)
+    void ChangePosition(GameObject player)//
     {
-        CharacterMenuNavigator navigator = player.GetComponent<CharacterMenuNavigator>();
+        MenuNavigator navigator = player.GetComponent<MenuNavigator>();
 
         string hAxis = navigator.horizontalAxis;
         string vAxis = navigator.verticalAxis;
@@ -143,7 +106,7 @@ public class CharacterSelectController : MonoBehaviour {
 
         if (navigator.canMove == true && navigator.isActive == true)
         {
-            if (((Input.GetAxis(vAxis) == 1) || (Input.GetAxis(vAxisDpad) == 1)) && (navigator.onAxis == false)) //up
+            if (((Input.GetAxis(vAxis) == 1) || (Input.GetAxis(vAxisDpad) == 1)) && (navigator.onAxis == false)) //Move up. If user is on top row move them to the bottom
             {
                 if (FindRow(player) == 1)
                 {
@@ -156,7 +119,7 @@ public class CharacterSelectController : MonoBehaviour {
                 navigator.onAxis = true;
             }
 
-            if (((Input.GetAxis(vAxis) == -1) || (Input.GetAxis(vAxisDpad) == -1)) && (navigator.onAxis == false)) //down
+            if (((Input.GetAxis(vAxis) == -1) || (Input.GetAxis(vAxisDpad) == -1)) && (navigator.onAxis == false)) //Move down. If user is on botton row move them to top
             {
                 if (FindRow(player) == (rows))
                 {
@@ -169,7 +132,7 @@ public class CharacterSelectController : MonoBehaviour {
                 navigator.onAxis = true;
             }
 
-            if (((Input.GetAxis(hAxis) == -1) || (Input.GetAxis(hAxisDpad) == -1)) && (navigator.onAxis == false)) //left
+            if (((Input.GetAxis(hAxis) == -1) || (Input.GetAxis(hAxisDpad) == -1)) && (navigator.onAxis == false)) //Move left. If user is in left most column move them to right most column
             {
                 Debug.Log("Moving");
                 if (FindColumn(player) == 1)
@@ -183,7 +146,7 @@ public class CharacterSelectController : MonoBehaviour {
                 navigator.onAxis = true;
             }
 
-            if (((Input.GetAxis(hAxis) == 1) || (Input.GetAxis(hAxisDpad) == 1)) && (navigator.onAxis == false)) //right
+            if (((Input.GetAxis(hAxis) == 1) || (Input.GetAxis(hAxisDpad) == 1)) && (navigator.onAxis == false)) //Move right. If user is in left most column move them to right most column
             {
                 Debug.Log("Moving");
                 if (FindColumn(player) == columns)
@@ -198,55 +161,43 @@ public class CharacterSelectController : MonoBehaviour {
             }
         }
 
-        if (Input.GetButtonDown(input))
+        if (Input.GetButtonDown(input)) //Get input / select button
         {
             if (navigator.isActive == true)
             {
 
                 if (playersConfirmed == playersPlaying)
                 {
-                    GameObject gameMaster = GameObject.Find("GameMaster");
-                    gameMaster.GetComponent<GlobalControl>().P1_Character = P1.GetComponent<CharacterMenuNavigator>().dogSelected;
-                    gameMaster.GetComponent<GlobalControl>().P2_Character = P2.GetComponent<CharacterMenuNavigator>().dogSelected;
-                    gameMaster.GetComponent<GlobalControl>().P3_Character = P3.GetComponent<CharacterMenuNavigator>().dogSelected;
-                    gameMaster.GetComponent<GlobalControl>().P4_Character = P4.GetComponent<CharacterMenuNavigator>().dogSelected;
-                    gameMaster.GetComponent<GlobalControl>().players = playersPlaying;
-                    controller.CharacterSelect.SetActive(false);
-                    StartCoroutine(controller.GetComponent<LevelSelectController>().beginCountdown());
-                    controller.LevelSelect.SetActive(true);
+                    //Move to next screen when all players are ready if needed
                 }
 
                 if (navigator.canMove == true)
                 {
-                    SelectDog(player);
+                    //Call button function
                 }
             }
 
-            if (navigator.isActive == false)
+            if (navigator.isActive == false) //Used to add players that start as unactive. Ex. Multiplayer character select
             {
-                player.GetComponent<CharacterMenuNavigator>().isActive = true;
+                player.GetComponent<MenuNavigator>().isActive = true;
                 playersPlaying += 1;
-                navigator.gameObject.SetActive(true);
-                player.GetComponent<CharacterMenuNavigator>().selector = 1;
+                navigator.gameObject.SetActive(true); //Turn on the new players navigator
+                player.GetComponent<MenuNavigator>().selector = 1; //Set player at start of the menu
                 SetPostion(player);
             }
-            Debug.Log("A pressed");
         }
 
         if (Input.GetButtonDown(back) && navigator.isActive == true)
         {
             if(playersConfirmed == 0)
             {
-                controller.CharacterSelect.SetActive(false);
-                controller.MainMenu.SetActive(true);
+                //Go back to previous menu
             }
 
             if(navigator.canMove == false)
             {
-                DeselectDog(player);
-                playersConfirmed -= 1;
+                //Deselect object if necessary 
             }
-            Debug.Log("B pressed");
         }
     }
 }
